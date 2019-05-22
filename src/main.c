@@ -4,7 +4,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define MAX_THREADS
+#define MAX_THREADS 3
+#define MAX_SIZE 64
 
 pthread_mutex_t trava;
 int primo = 0;
@@ -17,15 +18,13 @@ void* verifica_primo(void *argumento){ // Função que verifica se um determinad
 
 	while (j < 10 && fail == 0){  // Caso tal número seja divisível por algum valor inferior a 10 ou seja igual a 1, podemos concluir que o mesmo não é primo com a varáivel fail.
 	      
-	      pthread_mutex_lock(&trava);
+	      pthread_mutex_lock(&trava);	      
 
-	      if (((x % j == 0) && (j != x)) || (x == 1)){ 
-		    fail = 1; 
-		 
-	      }
+	      if (((x % j == 0) && (j != x)) || (x == 1))
+		    fail = 1; 	      
 	      
 	      else if (j == 9)		
-		    primo += 1;			
+		    primo++;			
 	      
 	      pthread_mutex_unlock(&trava);
 	      
@@ -33,45 +32,43 @@ void* verifica_primo(void *argumento){ // Função que verifica se um determinad
 
 	 }
 
- return NULL;
-
+ 	 return NULL;
 }
 
 int main (){
 
-	int i = 0, qtde_num = 0, vet_aux, indice = 0, num[64];
-	pthread_t thread[3];
-
-	qtde_num = 0;
-	indice = 0;
+	int i = 0, k = 0, qtde_num = 0, indice = 0, num[MAX_SIZE];
+	pthread_t thread[MAX_THREADS];
 
 	while (scanf("%d", &num[i]) != (-1)){ 
 		i++;    
 		(qtde_num)++;
 	}  
 
-	i = 0;	
-
 	while (indice < qtde_num){
 	      
-	      if (i < 3){
+	      if (i < MAX_THREADS){
 	      	 pthread_create(&(thread[i]), NULL, verifica_primo, (void*) (&num[indice]));
-		 pthread_join(thread[i],NULL);
 		 i++;
+	    	 indice++;  
 	     }
 		
 	     else{
-		i = 0;
-		indice--;
+		for (i = 0; i < MAX_THREADS; i++)
+		    pthread_join(thread[i],NULL);
+
+		i = 0;		
 	     }
-	    
-	     indice++;   
+	    	      
 	}
+
+	k = i;
+
+	for (k = 0; k < i; k++)
+	     pthread_join(thread[k],NULL);
 	
 	printf("%d\n", primo);
 
 	return 0;
 
 }
-
-
