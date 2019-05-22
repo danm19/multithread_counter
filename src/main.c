@@ -15,10 +15,12 @@ void* verifica_primo(void *argumento){ // Função que verifica se um determinad
 	int x = 0,j = 2, fail = 0, aux = 0;
 
 	x = *(int *)argumento;
-
+	
 	while (j < 10 && fail == 0){  // Caso tal número seja divisível por algum valor inferior a 10 ou seja igual a 1, podemos concluir que o mesmo não é primo com a varáivel fail.
 	      
+	  
 	      pthread_mutex_lock(&trava);	      
+	      
 
 	      if (((x % j == 0) && (j != x)) || (x == 1))
 		    fail = 1; 	      
@@ -45,16 +47,18 @@ int main (){
 		(qtde_num)++;
 	}  
 
+        i = 0;
+      
 	while (indice < qtde_num){
-	      
-	      if (i < MAX_THREADS){
+	      	
+	      if (i < MAX_THREADS){ // Cria Thread para cada número a ser verificado se o número de threads existentes forem menores que 4
 	      	 pthread_create(&(thread[i]), NULL, verifica_primo, (void*) (&num[indice]));
 		 i++;
-	    	 indice++;  
+	    	 indice++;
 	     }
 		
 	     else{
-		for (i = 0; i < MAX_THREADS; i++)
+		for (i = 0; i < MAX_THREADS; i++) // Caso existam três threads em operação e mais números a serem analisados. Espera as threads em operação encerrarem.
 		    pthread_join(thread[i],NULL);
 
 		i = 0;		
@@ -64,10 +68,10 @@ int main (){
 
 	k = i;
 
-	for (k = 0; k < i; k++)
-	     pthread_join(thread[k],NULL);
+	for (k = 0; k < i; k++) // Encerra todas as threads em operação
+	     pthread_join(thread[k],NULL); 
 	
-	printf("%d\n", primo);
+	printf("%d\n", primo); // Informa a quantidade de números primos existentes.
 
 	return 0;
 
